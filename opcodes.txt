@@ -1,0 +1,6 @@
+HALT 0 stop the machine (one)
+ADD 1 dest = src1 + src2 (one)
+SUB 2 dest = src1 - src2 (one)
+MUL 3 dest = src1 * src2 (one)
+DIV 4 dest = src1 / src2 (one)
+LOADI 5 dest = the 16-bit number in the next word (two)
