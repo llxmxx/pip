@@ -5,7 +5,7 @@
 #define FLAG_ZERO 2
 #define FLAG_LESS 4
 
-enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP};
+enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE};
 
 struct vm{
     uint16_t registers[8];
@@ -78,6 +78,33 @@ void execute(struct vm *m, uint16_t inst){
             else if(m->registers[src1(inst)] < m->registers[src2(inst)]) m->flag |= FLAG_LESS;
             break;
         }
+        case JMP:
+            m->counter = m->registers[dest(inst)];
+            break;
+        case JZ:
+            if(!m->registers[src1(inst)]) m->counter = m->registers[dest(inst)];
+            break;
+        case JNZ:
+            if(m->registers[src1(inst)]) m->counter = m->registers[dest(inst)];
+            break;
+        case JEQ:
+            if((m->flag & FLAG_ZERO) == FLAG_ZERO) m->counter = m->registers[dest(inst)];
+            break;
+        case JNE:
+            if((m->flag & FLAG_ZERO) != FLAG_ZERO) m->counter = m->registers[dest(inst)];
+            break;
+        case JLT:
+            if((m->flag & FLAG_LESS) == FLAG_LESS) m->counter = m->registers[dest(inst)];
+            break;
+        case JGT:
+            if((m->flag & FLAG_ZERO) != FLAG_ZERO && (m->flag & FLAG_LESS) != FLAG_LESS) m->counter = m->registers[dest(inst)];
+            break;
+        case JLE:
+            if((m->flag & FLAG_LESS) == FLAG_LESS || (m->flag & FLAG_ZERO) == FLAG_ZERO) m->counter = m->registers[dest(inst)];
+            break;
+        case JGE:
+            if((m->flag & FLAG_LESS) != FLAG_LESS) m->counter = m->registers[dest(inst)];
+            break;
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
             m->halted = 1;
