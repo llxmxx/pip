@@ -2,8 +2,10 @@
 #include <stdio.h>
 
 #define FLAG_OVERFLOW 1
+#define FLAG_ZERO 2
+#define FLAG_LESS 4
 
-enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI};
+enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP};
 
 struct vm{
     uint16_t registers[8];
@@ -69,6 +71,13 @@ void execute(struct vm *m, uint16_t inst){
         case LOADI:
             m->registers[dest(inst)] = fetch(m);
             break;
+        case CMP:{
+            m->flag &= ~FLAG_ZERO;
+            m->flag &= ~FLAG_LESS;
+            if(m->registers[src1(inst)] == m->registers[src2(inst)]) m->flag |= FLAG_ZERO;
+            else if(m->registers[src1(inst)] < m->registers[src2(inst)]) m->flag |= FLAG_LESS;
+            break;
+        }
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
             m->halted = 1;
