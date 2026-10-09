@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 
 enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI};
 
@@ -49,6 +50,9 @@ void execute(struct vm *m, uint16_t inst){
         case HALT:
             m->halted = 1;
             break;
+        case LOADI:
+            m->registers[dest(inst)] = fetch(m);
+            break;
     }
 }
 
@@ -61,6 +65,8 @@ void run(struct vm *m) {
 
 int main() {
     struct vm m = {0};
+    m.memory[0] = 0x28; m.memory[3] = 0x02; m.memory[4] = 0x29; m.memory[7] = 0x03; m.memory[8] = 0x12; m.memory[9] = 0x20;
     run(&m);
+    printf("%d\n", m.registers[2]);
     return 0;
 }
