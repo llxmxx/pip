@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define FLAG_OVERFLOW 1
+
 enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI};
 
 struct vm{
@@ -35,23 +37,41 @@ uint8_t src2(uint16_t inst){
 
 void execute(struct vm *m, uint16_t inst){
     switch(opcode(inst)){
-        case ADD:
-            m->registers[dest(inst)] = m->registers[src1(inst)]+m->registers[src2(inst)];
+        case ADD:{
+            uint32_t result = m->registers[src1(inst)]+m->registers[src2(inst)];
+            if(result > 65535) m->flag |= FLAG_OVERFLOW;
+            else m->flag &= ~FLAG_OVERFLOW;
+            m->registers[dest(inst)] = result;
             break;
+        }
         case SUB:
             m->registers[dest(inst)] = m->registers[src1(inst)]-m->registers[src2(inst)];
             break;
-        case MUL:
-            m->registers[dest(inst)] = m->registers[src1(inst)]*m->registers[src2(inst)];
+        case MUL:{
+            uint32_t result = (uint32_t)m->registers[src1(inst)]*m->registers[src2(inst)];
+            if(result > 65535) m->flag |= FLAG_OVERFLOW;
+            else m->flag &= ~FLAG_OVERFLOW;
+            m->registers[dest(inst)] = result;
             break;
-        case DIV:
-            m->registers[dest(inst)] = m->registers[src1(inst)]/m->registers[src2(inst)];
+        }
+        case DIV:{
+            uint16_t src_2 = m->registers[src2(inst)];
+            if(!src_2){
+                printf("ERR: divide by zero: %d\n", m->counter-2);
+                m->halted = 1;
+            }
+            else m->registers[dest(inst)] = m->registers[src1(inst)]/src_2;
             break;
+        }
         case HALT:
             m->halted = 1;
             break;
         case LOADI:
             m->registers[dest(inst)] = fetch(m);
+            break;
+        default:
+            printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
+            m->halted = 1;
             break;
     }
 }
@@ -65,8 +85,9 @@ void run(struct vm *m) {
 
 int main() {
     struct vm m = {0};
-    m.memory[0] = 0x28; m.memory[3] = 0x02; m.memory[4] = 0x29; m.memory[7] = 0x03; m.memory[8] = 0x12; m.memory[9] = 0x20;
+    m.memory[0] = 0x28; m.memory[2] = 0x01; m.memory[3] = 0x2C; m.memory[4] = 0x29; m.memory[6] = 0x01; m.memory[7] = 0x2C; m.memory[8] = 0x1A; m.memory[9] = 0x04;
     run(&m);
     printf("%d\n", m.registers[2]);
+    printf("%d\n", m.flag);
     return 0;
 }
