@@ -16,6 +16,11 @@ struct vm{
 };
 
 uint16_t fetch(struct vm *m) {
+    if(m->counter >= 65535){
+        printf("exceeds memory: %d\n", m->counter);
+        m->halted = 1;
+        return 0;
+    }
     uint16_t inst = ((m->memory[m->counter]) << 8) | (m->memory[m->counter+1]);
     m->counter += 2;
     return inst;
