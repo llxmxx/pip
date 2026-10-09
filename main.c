@@ -6,6 +6,7 @@ struct vm{
     uint16_t registers[8];
     uint16_t counter;
     uint8_t flag;
+    uint8_t halted;
     uint8_t memory[65536];
 };
 
@@ -31,6 +32,35 @@ uint8_t src2(uint16_t inst){
     return (inst >> 2) & 0x7;
 }
 
+void execute(struct vm *m, uint16_t inst){
+    switch(opcode(inst)){
+        case ADD:
+            m->registers[dest(inst)] = m->registers[src1(inst)]+m->registers[src2(inst)];
+            break;
+        case SUB:
+            m->registers[dest(inst)] = m->registers[src1(inst)]-m->registers[src2(inst)];
+            break;
+        case MUL:
+            m->registers[dest(inst)] = m->registers[src1(inst)]*m->registers[src2(inst)];
+            break;
+        case DIV:
+            m->registers[dest(inst)] = m->registers[src1(inst)]/m->registers[src2(inst)];
+            break;
+        case HALT:
+            m->halted = 1;
+            break;
+    }
+}
+
+void run(struct vm *m) {
+    while(!m->halted){
+        uint16_t inst = fetch(m);
+        execute(m, inst);
+    }
+}
+
 int main() {
+    struct vm m = {0};
+    run(&m);
     return 0;
-} 
+}
