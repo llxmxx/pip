@@ -126,9 +126,8 @@ void run(struct vm *m) {
 
 int main() {
     struct vm m = {0};
-    m.memory[0] = 0x28; m.memory[2] = 0x01; m.memory[3] = 0x2C; m.memory[4] = 0x29; m.memory[6] = 0x01; m.memory[7] = 0x2C; m.memory[8] = 0x1A; m.memory[9] = 0x04;
+    m.memory[0] = 0x28; m.memory[4] = 0x29; m.memory[7] = 0x01; m.memory[8] = 0x2A; m.memory[11] = 0x0A; m.memory[12] = 0x2B; m.memory[15] = 0x10; m.memory[16] = 0x08; m.memory[17] = 0x04; m.memory[18] = 0x30; m.memory[19] = 0x08; m.memory[20] = 0x63; m.memory[22] = 0x00;
     run(&m);
-    printf("%d\n", m.registers[2]);
-    printf("%d\n", m.flag);
+    printf("%d\n", m.registers[0]);
     return 0;
 }
