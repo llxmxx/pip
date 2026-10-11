@@ -213,11 +213,24 @@ void run(struct vm *m) {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     struct vm m = {0};
+    if(argc < 2){
+        printf("usage: vm program.bin\n");
+        return 1;
+    }
+    FILE *f = fopen(argv[1], "rb");
+    if(f == NULL){
+        printf("file couldnt be opened\n");
+        return 1;
+    }
+    size_t n = fread(m.memory, 1, CODE_END+1, f);
+    fclose(f);
+    if(!n){
+        printf("file is empty\n");
+        return 1;
+    }
     m.registers[7] = 0;
-    m.memory[0] = 0x2B; m.memory[3] = 0x08; m.memory[4] = 0x9B; m.memory[8] = 0x28; m.memory[11] = 0x2A; m.memory[12] = 0xA0;
     run(&m);
-    printf("%d\n", m.registers[0]);
     return 0;
 }
