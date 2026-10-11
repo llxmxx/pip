@@ -11,7 +11,7 @@
 #define STACK_START 0xC000
 #define STACK_END 0xFFFF
 
-enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE, LOAD, STORE, MOV};
+enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE, LOAD, STORE, MOV, CALL, RET};
 
 struct vm{
     uint16_t registers[8];
@@ -146,6 +146,26 @@ void execute(struct vm *m, uint16_t inst){
         case MOV:
             m->registers[dest(inst)] = m->registers[src1(inst)];
             break;
+        case CALL:
+            if((uint16_t)(m->registers[7]-2) < STACK_START){
+                printf("stack overflow: %d\n", m->counter-2);
+                m->halted = 1;
+                return;
+            }
+            m->registers[7] -= 2;
+            m->memory[m->registers[7]] = m->counter>>8;
+            m->memory[m->registers[7]+1] = m->counter&0xFF;
+            m->counter = m->registers[dest(inst)];
+            break;
+        case RET:
+            if(!m->registers[7]){
+                printf("RET with empty stack: %d\n", m->counter-2);
+                m->halted = 1;
+                return;
+            }
+            m->counter = (m->memory[m->registers[7]] << 8) | m->memory[m->registers[7]+1];
+            m->registers[7] += 2;
+            break;
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
             m->halted = 1;
@@ -162,7 +182,8 @@ void run(struct vm *m) {
 
 int main() {
     struct vm m = {0};
-    m.memory[0] = 0x28; m.memory[4] = 0x29; m.memory[7] = 0x01; m.memory[8] = 0x2A; m.memory[11] = 0x0A; m.memory[12] = 0x2B; m.memory[15] = 0x10; m.memory[16] = 0x08; m.memory[17] = 0x04; m.memory[18] = 0x30; m.memory[19] = 0x08; m.memory[20] = 0x63; m.memory[22] = 0x00;
+    m.registers[7] = 0;
+    m.memory[0] = 0x2B; m.memory[3] = 0x08; m.memory[4] = 0x9B; m.memory[8] = 0x28; m.memory[11] = 0x2A; m.memory[12] = 0xA0;
     run(&m);
     printf("%d\n", m.registers[0]);
     return 0;
