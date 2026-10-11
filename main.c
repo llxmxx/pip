@@ -5,7 +5,7 @@
 #define FLAG_ZERO 2
 #define FLAG_LESS 4
 
-enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE};
+enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE, LOAD, STORE, MOV};
 
 struct vm{
     uint16_t registers[8];
@@ -109,6 +109,21 @@ void execute(struct vm *m, uint16_t inst){
             break;
         case JGE:
             if((m->flag & FLAG_LESS) != FLAG_LESS) m->counter = m->registers[dest(inst)];
+            break;
+        case LOAD:{
+            uint16_t addr = m->registers[src1(inst)];
+            m->registers[dest(inst)] = (m->memory[addr] << 8) | m->memory[addr+1];
+            break;
+        }
+        case STORE:{
+            uint16_t addr = m->registers[dest(inst)];
+            uint16_t value = m->registers[src1(inst)];
+            m->memory[addr] = (value >> 8);
+            m->memory[addr + 1] = (value & 0xFF);
+            break;
+        }
+        case MOV:
+            m->registers[dest(inst)] = m->registers[src1(inst)];
             break;
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
