@@ -11,7 +11,14 @@
 #define STACK_START 0xC000
 #define STACK_END 0xFFFF
 
-enum opcodes{HALT, ADD, SUB, MUL, DIV, LOADI, CMP, JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE, LOAD, STORE, MOV, CALL, RET};
+enum opcodes{
+    HALT, ADD, SUB, MUL, DIV,
+    LOADI, CMP,
+    JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE,
+    LOAD, STORE, MOV,
+    CALL, RET,
+    AND, OR, XOR, NOT, SHL, SHR
+};
 
 struct vm{
     uint16_t registers[8];
@@ -165,6 +172,26 @@ void execute(struct vm *m, uint16_t inst){
             }
             m->counter = (m->memory[m->registers[7]] << 8) | m->memory[m->registers[7]+1];
             m->registers[7] += 2;
+            break;
+        case AND:
+            m->registers[dest(inst)] = m->registers[src1(inst)] & m->registers[src2(inst)];
+            break;
+        case OR:
+            m->registers[dest(inst)] = m->registers[src1(inst)] | m->registers[src2(inst)];
+            break;
+        case XOR:
+            m->registers[dest(inst)] = m->registers[src1(inst)] ^ m->registers[src2(inst)];
+            break;
+        case NOT:
+            m->registers[dest(inst)] = ~m->registers[src1(inst)];
+            break;
+        case SHL:
+            if(m->registers[src2(inst)] >= 16) m->registers[dest(inst)] = 0;
+            else m->registers[dest(inst)] = m->registers[src1(inst)] << m->registers[src2(inst)];
+            break;
+        case SHR:
+            if(m->registers[src2(inst)] >= 16) m->registers[dest(inst)] = 0;
+            else m->registers[dest(inst)] = m->registers[src1(inst)] >> m->registers[src2(inst)];
             break;
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
