@@ -12,12 +12,15 @@
 #define STACK_END 0xFFFF
 
 enum opcodes{
-    HALT, ADD, SUB, MUL, DIV,
-    LOADI, CMP,
+    HALT,
+    ADD, SUB, MUL, DIV,
+    LOADI,
+    CMP,
     JMP, JZ, JNZ, JEQ, JNE, JLT, JGT, JLE, JGE,
     LOAD, STORE, MOV,
     CALL, RET,
-    AND, OR, XOR, NOT, SHL, SHR
+    AND, OR, XOR, NOT, SHL, SHR,
+    PRINT
 };
 
 struct vm{
@@ -192,6 +195,9 @@ void execute(struct vm *m, uint16_t inst){
         case SHR:
             if(m->registers[src2(inst)] >= 16) m->registers[dest(inst)] = 0;
             else m->registers[dest(inst)] = m->registers[src1(inst)] >> m->registers[src2(inst)];
+            break;
+        case PRINT:
+            printf("%d\n", m->registers[src1(inst)]);
             break;
         default:
             printf("undefined opcode %d at %d\n", opcode(inst), m->counter-2);
