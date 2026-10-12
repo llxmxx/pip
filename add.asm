@@ -1,0 +1,5 @@
+LOADI R0, 2
+LOADI R1, 3 ; yo what
+ADD R2, R0, R1
+PRINT R2
+HALT
