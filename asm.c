@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "vm.h"
 
 enum shape {NONE, D, S, DS, SS, DSS, DI};
@@ -16,6 +17,22 @@ struct inst table[] = {
     {"LOADI", LOADI, DI},
     {"PRINT", PRINT, S}
 };
+
+int parse_reg(const char *w){
+    if(strlen(w) == 2 && w[0] == 'R' && w[1] >= '0' && w[1] < '8'){
+        return (w[1] - '0');
+    }
+    else return -1;
+}
+
+long parse_num(const char *w){
+    char *end;
+    long v = strtol(w, &end, 0);
+    if(*end == '\0' && end != w && v >= 0 && v <= 65535){
+        return v;
+    }
+    else return -1;
+}
 
 int main(int argc, char *argv[]){
     if(argc < 3){
