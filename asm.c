@@ -81,8 +81,60 @@ int main(int argc, char *argv[]){
 
         if(found == -1){
             printf("unknown instruction %s on line %d\n", words[0], lineno);
-        } else {
-            printf("opcode: %d and shape: %d\n", table[found].opcode, table[found].shape);
+        }
+
+        int d = 0, s1 = 0, s2 = 0;
+        long num = -1;
+
+        switch(table[found].shape){
+            case DSS:
+                if(count != 4){
+                    printf("line %d: %s needs 3 operands\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                d = parse_reg(words[1]);
+                s1 = parse_reg(words[2]);
+                s2 = parse_reg(words[3]);
+                break;
+            case NONE:
+                if(count != 1){
+                    printf("line %d: %s needs 0 operands\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                break;
+            case S:
+                if(count != 2){
+                    printf("line %d: %s needs 1 operand\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                s1 = parse_reg(words[1]);
+                break;
+            case DI:
+                if(count != 3){
+                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                d = parse_reg(words[1]);
+                num = parse_num(words[2]);
+                break;
+        }
+
+        if(d < 0 || s1 < 0 || s2 < 0 || (table[found].shape == DI && num < 0)){
+            printf("line %d: bad operand\n", lineno);
+            fclose(in); fclose(out);
+            return 1;
+        }
+
+        uint16_t word = (table[found].opcode << 11) | (d << 8) | (s1 << 5) | (s2 << 2);
+        fputc(word >> 8, out);
+        fputc(word & 0xFF, out);
+        if(table[found].shape == DI){
+            fputc(num >> 8, out);
+            fputc(num & 0xFF, out);
         }
     }
 
