@@ -199,7 +199,7 @@ int main(int argc, char *argv[]) {
     }
     FILE *f = fopen(argv[1], "rb");
     if(f == NULL){
-        printf("file couldnt be opened\n");
+        printf("file could not be opened\n");
         return 1;
     }
     size_t n = fread(m.memory, 1, CODE_END+1, f);
