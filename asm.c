@@ -15,6 +15,10 @@ struct inst table[] = {
     {"HALT", HALT, NONE},
     {"ADD", ADD, DSS},
     {"LOADI", LOADI, DI},
+    {"JMP", JMP, D},
+    {"JLT", JLT, D},
+    {"MOV", MOV, DS},
+    {"CMP", CMP, SS},
     {"PRINT", PRINT, S}
 };
 
@@ -72,7 +76,7 @@ int main(int argc, char *argv[]){
         if(count == 0) continue;
 
         int found = -1;
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < sizeof table; i++){
             if(!strcmp(words[0], table[i].name)){
                 found = i;
                 break;
@@ -120,6 +124,32 @@ int main(int argc, char *argv[]){
                 }
                 d = parse_reg(words[1]);
                 num = parse_num(words[2]);
+                break;
+            case D:
+                if(count != 2){
+                    printf("line %d: %s needs 1 operand\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                d = parse_reg(words[1]);
+                break;
+            case DS:
+                if(count != 3){
+                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                d = parse_reg(words[1]);
+                s1 = parse_reg(words[2]);
+                break;
+            case SS:
+                if(count != 3){
+                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                    fclose(in); fclose(out);
+                    return 1;
+                }
+                s1 = parse_reg(words[1]);
+                s2 = parse_reg(words[2]);
                 break;
         }
 
