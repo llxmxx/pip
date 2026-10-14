@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    char line[256]; int lineno = 0;
+    char line[256]; int lineno = 0, addr = 0;
     while(fgets(line, sizeof line, in) != NULL){
         lineno++;
 
@@ -94,6 +94,10 @@ int main(int argc, char *argv[]){
             w = strtok(NULL, " ,\t[]");
         }
         if(count == 0) continue;
+        else if(count == 1 && words[0][strlen(words[0]) - 1] == ':'){
+            printf("label %s at addr %d\n", words[0], addr);
+            continue;
+        }
 
         int found = -1;
         for(int i = 0; i < sizeof table; i++){
@@ -186,6 +190,9 @@ int main(int argc, char *argv[]){
             fputc(num >> 8, out);
             fputc(num & 0xFF, out);
         }
+
+        if(table[found].shape == DI) addr += 4;
+        else addr += 2;
     }
 
     fclose(in);
