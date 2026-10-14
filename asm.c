@@ -87,11 +87,11 @@ int main(int argc, char *argv[]){
         char *words[4];
         int count = 0;
 
-        char *w = strtok(line, " ,\t");
+        char *w = strtok(line, " ,\t[]");
         while(w != NULL && count < 4){
             words[count] = w;
             count++;
-            w = strtok(NULL, " ,\t");
+            w = strtok(NULL, " ,\t[]");
         }
         if(count == 0) continue;
 
