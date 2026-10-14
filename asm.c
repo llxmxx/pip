@@ -11,6 +11,11 @@ struct inst{
     enum shape shape;
 };
 
+struct label {
+    char name[32];
+    int addr;
+};
+
 struct inst table[] = {
     {"HALT", HALT, NONE},
     {"RET", RET, NONE},
@@ -41,6 +46,9 @@ struct inst table[] = {
     {"CMP", CMP, SS},
     {"PRINT", PRINT, S}
 };
+
+struct label labels[256];
+int nlabels = 0;
 
 int parse_reg(const char *w){
     if(strlen(w) == 2 && w[0] == 'R' && w[1] >= '0' && w[1] < '8'){
@@ -95,7 +103,21 @@ int main(int argc, char *argv[]){
         }
         if(count == 0) continue;
         else if(count == 1 && words[0][strlen(words[0]) - 1] == ':'){
-            printf("label %s at addr %d\n", words[0], addr);
+            if(strlen(words[0]) >= 32){
+                printf("label too long on line %d\n", lineno);
+                fclose(in); fclose(out);
+                return 1;
+            }
+            if(nlabels >= 256){
+                printf("too many labels\n");
+                fclose(in); fclose(out);
+                return 1;
+            }
+            char *cl = strchr(words[0], ':');
+            *cl = '\0';
+            strcpy(labels[nlabels].name, words[0]);
+            labels[nlabels].addr = addr;
+            nlabels += 1;
             continue;
         }
 
