@@ -84,138 +84,158 @@ int main(int argc, char *argv[]){
     }
 
     char line[256]; int lineno = 0, addr = 0;
-    while(fgets(line, sizeof line, in) != NULL){
-        lineno++;
+    for(int pass = 1; pass <= 2; pass++){
+        rewind(in);
+        lineno = 0;
+        addr = 0;
+        while(fgets(line, sizeof line, in) != NULL){
+            lineno++;
 
-        char *nl = strchr(line, '\n');
-        if(nl != NULL) *nl = '\0';
-        char *cm = strchr(line, ';');
-        if(cm != NULL) *cm = '\0';
+            char *nl = strchr(line, '\n');
+            if(nl != NULL) *nl = '\0';
+            char *cm = strchr(line, ';');
+            if(cm != NULL) *cm = '\0';
 
-        char *words[4];
-        int count = 0;
+            char *words[4];
+            int count = 0;
 
-        char *w = strtok(line, " ,\t[]");
-        while(w != NULL && count < 4){
-            words[count] = w;
-            count++;
-            w = strtok(NULL, " ,\t[]");
-        }
-        if(count == 0) continue;
-        else if(count == 1 && words[0][strlen(words[0]) - 1] == ':'){
-            if(strlen(words[0]) >= 32){
-                printf("label too long on line %d\n", lineno);
+            char *w = strtok(line, " ,\t[]");
+            while(w != NULL && count < 4){
+                words[count] = w;
+                count++;
+                w = strtok(NULL, " ,\t[]");
+            }
+            if(count == 0) continue;
+            else if(count == 1 && words[0][strlen(words[0]) - 1] == ':'){
+                if(pass == 1){
+                    if(strlen(words[0]) >= 32){
+                        printf("label too long on line %d\n", lineno);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    if(nlabels >= 256){
+                        printf("too many labels\n");
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    char *cl = strchr(words[0], ':');
+                    *cl = '\0';
+                    strcpy(labels[nlabels].name, words[0]);
+                    labels[nlabels].addr = addr;
+                    nlabels += 1;    
+                }
+                continue;
+            }
+
+            int found = -1;
+            for(int i = 0; i < sizeof table/sizeof table[0]; i++){
+                if(!strcmp(words[0], table[i].name)){
+                    found = i;
+                    break;
+                }
+            }
+
+            if(found == -1){
+                printf("unknown instruction %s on line %d\n", words[0], lineno);
                 fclose(in); fclose(out);
                 return 1;
             }
-            if(nlabels >= 256){
-                printf("too many labels\n");
+            if(pass == 1){
+                if(table[found].shape == DI) addr += 4;
+                else addr += 2;
+                continue;
+            }
+
+            int d = 0, s1 = 0, s2 = 0;
+            long num = -1;
+
+            switch(table[found].shape){
+                case DSS:
+                    if(count != 4){
+                        printf("line %d: %s needs 3 operands\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    d = parse_reg(words[1]);
+                    s1 = parse_reg(words[2]);
+                    s2 = parse_reg(words[3]);
+                    break;
+                case NONE:
+                    if(count != 1){
+                        printf("line %d: %s needs 0 operands\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    break;
+                case S:
+                    if(count != 2){
+                        printf("line %d: %s needs 1 operand\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    s1 = parse_reg(words[1]);
+                    break;
+                case DI:
+                    if(count != 3){
+                        printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    d = parse_reg(words[1]);
+                    num = parse_num(words[2]);
+                    if(num == -1){
+                        for(int i = 0; i < nlabels; i++){
+                            if(!strcmp(words[2], labels[i].name)){
+                                num = labels[i].addr;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case D:
+                    if(count != 2){
+                        printf("line %d: %s needs 1 operand\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    d = parse_reg(words[1]);
+                    break;
+                case DS:
+                    if(count != 3){
+                        printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    d = parse_reg(words[1]);
+                    s1 = parse_reg(words[2]);
+                    break;
+                case SS:
+                    if(count != 3){
+                        printf("line %d: %s needs 2 operands\n", lineno, words[0]);
+                        fclose(in); fclose(out);
+                        return 1;
+                    }
+                    s1 = parse_reg(words[1]);
+                    s2 = parse_reg(words[2]);
+                    break;
+            }
+
+            if(d < 0 || s1 < 0 || s2 < 0 || (table[found].shape == DI && num < 0)){
+                printf("line %d: bad operand\n", lineno);
                 fclose(in); fclose(out);
                 return 1;
             }
-            char *cl = strchr(words[0], ':');
-            *cl = '\0';
-            strcpy(labels[nlabels].name, words[0]);
-            labels[nlabels].addr = addr;
-            nlabels += 1;
-            continue;
-        }
 
-        int found = -1;
-        for(int i = 0; i < sizeof table; i++){
-            if(!strcmp(words[0], table[i].name)){
-                found = i;
-                break;
+            uint16_t word = (table[found].opcode << 11) | (d << 8) | (s1 << 5) | (s2 << 2);
+            fputc(word >> 8, out);
+            fputc(word & 0xFF, out);
+            if(table[found].shape == DI){
+                fputc(num >> 8, out);
+                fputc(num & 0xFF, out);
             }
-        }
-
-        if(found == -1){
-            printf("unknown instruction %s on line %d\n", words[0], lineno);
-        }
-
-        int d = 0, s1 = 0, s2 = 0;
-        long num = -1;
-
-        switch(table[found].shape){
-            case DSS:
-                if(count != 4){
-                    printf("line %d: %s needs 3 operands\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                d = parse_reg(words[1]);
-                s1 = parse_reg(words[2]);
-                s2 = parse_reg(words[3]);
-                break;
-            case NONE:
-                if(count != 1){
-                    printf("line %d: %s needs 0 operands\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                break;
-            case S:
-                if(count != 2){
-                    printf("line %d: %s needs 1 operand\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                s1 = parse_reg(words[1]);
-                break;
-            case DI:
-                if(count != 3){
-                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                d = parse_reg(words[1]);
-                num = parse_num(words[2]);
-                break;
-            case D:
-                if(count != 2){
-                    printf("line %d: %s needs 1 operand\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                d = parse_reg(words[1]);
-                break;
-            case DS:
-                if(count != 3){
-                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                d = parse_reg(words[1]);
-                s1 = parse_reg(words[2]);
-                break;
-            case SS:
-                if(count != 3){
-                    printf("line %d: %s needs 2 operands\n", lineno, words[0]);
-                    fclose(in); fclose(out);
-                    return 1;
-                }
-                s1 = parse_reg(words[1]);
-                s2 = parse_reg(words[2]);
-                break;
-        }
-
-        if(d < 0 || s1 < 0 || s2 < 0 || (table[found].shape == DI && num < 0)){
-            printf("line %d: bad operand\n", lineno);
-            fclose(in); fclose(out);
-            return 1;
-        }
-
-        uint16_t word = (table[found].opcode << 11) | (d << 8) | (s1 << 5) | (s2 << 2);
-        fputc(word >> 8, out);
-        fputc(word & 0xFF, out);
-        if(table[found].shape == DI){
-            fputc(num >> 8, out);
-            fputc(num & 0xFF, out);
-        }
-
-        if(table[found].shape == DI) addr += 4;
-        else addr += 2;
+        }    
     }
+    
 
     fclose(in);
     fclose(out);
