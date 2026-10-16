@@ -1,0 +1,8 @@
+LOADI R3, ans
+CALL R3
+PRINT R0
+HALT
+
+ans:
+LOADI R0, 42
+RET
