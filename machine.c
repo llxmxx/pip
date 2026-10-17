@@ -175,9 +175,13 @@ void execute(struct vm *m, uint16_t inst){
     }
 }
 
+void step(struct vm *m){
+    uint16_t inst = fetch(m);
+    execute(m, inst);
+}
+
 void run(struct vm *m) {
     while(!m->halted){
-        uint16_t inst = fetch(m);
-        execute(m, inst);
+        step(m);
     }
 }

@@ -35,6 +35,7 @@ struct vm{
     uint8_t memory[65536];
 };
 
+void step(struct vm *m);
 void run(struct vm *m);
 
 #endif
