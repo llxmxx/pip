@@ -210,5 +210,18 @@ int main(int argc, char *argv[]) {
     }
     m.registers[7] = 0;
     run(&m);
+
+    if(argc > 2 && !strcmp(argv[2], "--grid")){
+        for(int y = 0; y < 64; y++){
+            for(int x = 0; x < 64; x++){
+                int addr = DATA_START + (y*64 + x)*2;
+                if(m.memory[addr+1]) putchar('#');
+                else putchar('.');
+            }
+            putchar('\n');
+        }    
+    }
+    
+
     return 0;
 }

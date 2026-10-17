@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #define FLAG_OVERFLOW 1
 #define FLAG_ZERO 2
