@@ -27,4 +27,14 @@ enum opcodes{
     PRINT
 };
 
+struct vm{
+    uint16_t registers[8];
+    uint16_t counter;
+    uint8_t flag;
+    uint8_t halted;
+    uint8_t memory[65536];
+};
+
+void run(struct vm *m);
+
 #endif
