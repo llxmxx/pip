@@ -33,7 +33,11 @@
             for(let i = 0; i < 8; i ++){
                 text += "R"+i+": "+Module._vm_reg(i) + "\n";
             }
-            text += "pc: "+Module._vm_pc();
+            text += "pc: "+Module._vm_pc() + "\n";
+            let flags = Module._vm_flags();
+            text += "overflow: " + ((flags & 1) ? "on" : "off") + "\n";
+            text += "zero: " + ((flags & 2) ? "on" : "off") + "\n";
+            text += "less: " + ((flags & 4) ? "on" : "off") + "\n";
             document.getElementById("regs").textContent = text;
         }
         var Module = {
