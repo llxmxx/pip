@@ -6,7 +6,66 @@
     <title>vm visualizer</title>
 </head>
 <body>
-    <p>hello world</p>
+    <button id="step">step</button>
+    <button id="run">run</button>
+    <button id="pause">pause</button>
+    <button id="reset">reset</button>
+    <pre id="regs"></pre>
+
+    <script>
+        let rid = null;
+        async function load(file){
+            Module._vm_reset();
+            let bytes = new Uint8Array(await (await fetch('fib.bin')).arrayBuffer());
+            bytes.forEach((b, i) => Module._vm_load_byte(i, b));
+        }
+        function show(){
+            let text = "";
+            for(let i = 0; i < 8; i ++){
+                text += "R"+i+": "+Module._vm_reg(i) + "\n";
+            }
+            text += "pc: "+Module._vm_pc();
+            document.getElementById("regs").textContent = text;
+        }
+        var Module = {
+            async onRuntimeInitialized(){
+                await load('fib.bin');
+                show();
+            }
+        }
+        document.getElementById("step").onclick = () => {
+            Module._vm_step();
+            show();
+        }
+        document.getElementById("run").onclick = () => {
+            if(rid === null){
+                rid = setInterval(() =>{
+                    Module._vm_step();
+                    show();
+                    if(Module._vm_halted()){
+                        clearInterval(rid);
+                        runs = null;
+                    }
+                }, 50);
+            }
+            show()
+        }
+        document.getElementById("pause").onclick = () => {
+            if(rid !== null){
+                clearInterval(rid);
+                rid = null;
+            }
+        }
+        document.getElementById("reset").onclick =  async () => {
+            if(rid !== null){
+                clearInterval(rid);
+                rid = null;
+            }
+            await load('fib.bin');
+            show();
+        }
+    </script>
+
     <script src="vm.js"></script>
 </body>
 </html>
