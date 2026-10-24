@@ -11,6 +11,7 @@
     <button id="pause">pause</button>
     <button id="reset">reset</button>
     <pre id="regs"></pre>
+    <pre id="out"></pre>
 
     <script>
         let rid = null;
@@ -18,6 +19,8 @@
             Module._vm_reset();
             let bytes = new Uint8Array(await (await fetch('fib.bin')).arrayBuffer());
             bytes.forEach((b, i) => Module._vm_load_byte(i, b));
+            let out = document.getElementById("out");
+            out.textContent = "";
         }
         function show(){
             let text = "";
@@ -28,6 +31,10 @@
             document.getElementById("regs").textContent = text;
         }
         var Module = {
+            print(text){
+                let out = document.getElementById("out");
+                out.textContent += text + "\n";
+            },
             async onRuntimeInitialized(){
                 await load('fib.bin');
                 show();
