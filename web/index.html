@@ -12,15 +12,21 @@
     <button id="reset">reset</button>
     <pre id="regs"></pre>
     <pre id="out"></pre>
+    <select id="prog">
+        <option value="fib.bin">fibonacci</option>
+        <option value="add.bin">2+3</option>
+        <option value="ant.bin">langtons ant</option>
+    </select>
 
     <script>
         let rid = null;
+        let prog = document.getElementById("prog").value
         async function load(file){
             Module._vm_reset();
-            let bytes = new Uint8Array(await (await fetch('fib.bin')).arrayBuffer());
+            let bytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
             bytes.forEach((b, i) => Module._vm_load_byte(i, b));
-            let out = document.getElementById("out");
-            out.textContent = "";
+            let box = document.getElementById("out");
+            box.textContent = "";
         }
         function show(){
             let text = "";
@@ -32,11 +38,11 @@
         }
         var Module = {
             print(text){
-                let out = document.getElementById("out");
-                out.textContent += text + "\n";
+                let box = document.getElementById("out");
+                box.textContent += text + "\n";
             },
             async onRuntimeInitialized(){
-                await load('fib.bin');
+                await load(prog);
                 show();
             }
         }
@@ -51,7 +57,7 @@
                     show();
                     if(Module._vm_halted()){
                         clearInterval(rid);
-                        runs = null;
+                        rid = null;
                     }
                 }, 50);
             }
@@ -68,7 +74,16 @@
                 clearInterval(rid);
                 rid = null;
             }
-            await load('fib.bin');
+            await load(prog);
+            show();
+        }
+        document.getElementById("prog").onchange = async () => {
+            if(rid !== null){
+                clearInterval(rid);
+                rid = null;
+            }
+            prog = document.getElementById("prog").value
+            await load(prog);
             show();
         }
     </script>
