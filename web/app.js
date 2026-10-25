@@ -9,6 +9,23 @@ async function load(file){
     box.textContent = "";
 }
 
+function drawGrid(){
+    let canvas = document.getElementById("grid");
+    let ctx = canvas.getContext("2d");
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, 384, 384);
+
+    ctx.fillStyle = "black";
+    for(let y = 0; y < 64; y++){
+        for(let x = 0; x < 64; x++){
+            let addr = 0x6000 + (y*64+x)*2;
+            if(Module._vm_mem(addr+1)){
+                ctx.fillRect(x*6, y*6, 6, 6);
+            }
+        }
+    }
+}
+
 function showStack(){
     let st = document.getElementById("stack");
     let sp = Module._vm_reg(7);
@@ -38,6 +55,7 @@ function show(){
     text += "next: " + decode();
     document.getElementById("regs").textContent = text;
     showStack();
+    drawGrid();
 }
 
 var Module = {
