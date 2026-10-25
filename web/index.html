@@ -4,19 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vm visualizer</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button id="step">step</button>
-    <button id="run">run</button>
-    <button id="pause">pause</button>
-    <button id="reset">reset</button>
-    <pre id="regs"></pre>
-    <pre id="out"></pre>
-    <select id="prog">
-        <option value="fib.bin">fibonacci</option>
-        <option value="add.bin">2+3</option>
-        <option value="ant.bin">langtons ant</option>
-    </select>
+    <header>pip</header>
+
+    <div id="controls">
+        <select id="prog">
+            <option value="fib.bin">fibonacci</option>
+            <option value="add.bin">2+3</option>
+            <option value="ant.bin">langtons ant</option>
+            <option value="call.bin">call</option>
+        </select>
+        <button id="step">step</button>
+        <button id="run">run</button>
+        <button id="pause">pause</button>
+        <button id="reset">reset</button>
+    </div>
+
+    <div id="view">
+        <pre id="out"></pre>
+    </div>
+
+    <div id="side">
+        <pre id="regs"></pre>
+        <pre id="stack"></pre>
+    </div>
+    
 
     <script src="disasm.js"></script>
     <script src="app.js"></script>
