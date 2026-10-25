@@ -59,12 +59,16 @@ document.getElementById("step").onclick = () => {
 document.getElementById("run").onclick = () => {
     if(rid === null){
         rid = setInterval(() =>{
-            Module._vm_step();
-            show();
-            if(Module._vm_halted()){
-                clearInterval(rid);
-                rid = null;
+            let n = Number(document.getElementById("speed").value);
+            for (let i = 0; i < n; i++){
+                Module._vm_step();
+                if(Module._vm_halted()){
+                    clearInterval(rid);
+                    rid = null;
+                    break;
+                }
             }
+            show();
         }, 50);
     }
     show()
