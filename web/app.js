@@ -42,6 +42,24 @@ function showStack(){
     }
 }
 
+function showMem(){
+    let pc = Module._vm_pc();
+    let start = Math.max(0, pc-8);
+    let text = "";
+    for(let row = 0; row < 3; row++){
+        let base = start + row*8;
+        text += base.toString(16).padStart(4, "0").toUpperCase() + ": ";
+        for(let i = 0; i < 8; i++){
+            let a = base + i;
+            let hex = Module._vm_mem(a).toString(16).padStart(2, "0").toUpperCase();
+            if(a === pc || a === pc+1) text+= "[" + hex + "]";
+            else text += " " +hex + " ";
+        }
+        text+="\n";
+    }
+    document.getElementById("mem").textContent = text;
+}
+
 function show(){
     let text = "";
     for(let i = 0; i < 8; i ++){
@@ -54,6 +72,7 @@ function show(){
     text += "less: " + ((flags & 4) ? "on" : "off") + "\n";
     text += "next: " + decode();
     document.getElementById("regs").textContent = text;
+    showMem();
     showStack();
     drawGrid();
 }
