@@ -136,3 +136,14 @@ document.getElementById("prog").onchange = async () => {
     await load(prog);
     show();
 }
+
+document.addEventListener("keydown", e => {
+    if(e.code === "Space"){
+        e.preventDefault();
+        Module._vm_poke(0xBFFF, 1);
+    }
+})
+
+document.getElementById("grid").addEventListener("pointerdown", () => {
+    Module._vm_poke(0xBFFF, 1);
+})
