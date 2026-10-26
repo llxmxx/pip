@@ -19,7 +19,7 @@ LOADI R6, turned
 JMP R6
 
 white:
-LOADI R5, 1
+LOADI R5, 0x7FF
 STORE [R4], R5
 LOADI R5, 1
 ADD R2, R2, R5

@@ -14,14 +14,15 @@ function drawGrid(){
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, 384, 384);
-
-    ctx.fillStyle = "black";
     for(let y = 0; y < 64; y++){
         for(let x = 0; x < 64; x++){
             let addr = 0x6000 + (y*64+x)*2;
-            if(Module._vm_mem(addr+1)){
-                ctx.fillRect(x*6, y*6, 6, 6);
-            }
+            let v = (Module._vm_mem(addr) << 8) | Module._vm_mem(addr + 1);
+            let r = Math.round(((v >> 11) & 31) * 255/31);
+            let g = Math.round(((v >> 5) & 63) * 255/63);
+            let b = Math.round((v & 31) * 255/31);
+            ctx.fillStyle = "rgb(" + r + "," + g +"," + b +")";
+            ctx.fillRect(x*6, y*6, 6, 6);
         }
     }
 }
