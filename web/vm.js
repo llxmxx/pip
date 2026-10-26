@@ -1593,6 +1593,7 @@ var _vm_pc = Module['_vm_pc'] = makeInvalidEarlyAccess('_vm_pc');
 var _vm_flags = Module['_vm_flags'] = makeInvalidEarlyAccess('_vm_flags');
 var _vm_halted = Module['_vm_halted'] = makeInvalidEarlyAccess('_vm_halted');
 var _vm_mem = Module['_vm_mem'] = makeInvalidEarlyAccess('_vm_mem');
+var _vm_poke = Module['_vm_poke'] = makeInvalidEarlyAccess('_vm_poke');
 var _fflush = makeInvalidEarlyAccess('_fflush');
 var _strerror = makeInvalidEarlyAccess('_strerror');
 var _emscripten_stack_get_end = makeInvalidEarlyAccess('_emscripten_stack_get_end');
@@ -1616,6 +1617,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['vm_flags'] != 'undefined', 'missing Wasm export: vm_flags');
   assert(typeof wasmExports['vm_halted'] != 'undefined', 'missing Wasm export: vm_halted');
   assert(typeof wasmExports['vm_mem'] != 'undefined', 'missing Wasm export: vm_mem');
+  assert(typeof wasmExports['vm_poke'] != 'undefined', 'missing Wasm export: vm_poke');
   assert(typeof wasmExports['fflush'] != 'undefined', 'missing Wasm export: fflush');
   assert(typeof wasmExports['strerror'] != 'undefined', 'missing Wasm export: strerror');
   assert(typeof wasmExports['emscripten_stack_get_end'] != 'undefined', 'missing Wasm export: emscripten_stack_get_end');
@@ -1636,6 +1638,7 @@ function assignWasmExports(wasmExports) {
   _vm_flags = Module['_vm_flags'] = createExportWrapper('vm_flags', wasmExports['vm_flags'], 0);
   _vm_halted = Module['_vm_halted'] = createExportWrapper('vm_halted', wasmExports['vm_halted'], 0);
   _vm_mem = Module['_vm_mem'] = createExportWrapper('vm_mem', wasmExports['vm_mem'], 1);
+  _vm_poke = Module['_vm_poke'] = createExportWrapper('vm_poke', wasmExports['vm_poke'], 2);
   _fflush = createExportWrapper('fflush', wasmExports['fflush'], 1);
   _strerror = createExportWrapper('strerror', wasmExports['strerror'], 1);
   _emscripten_stack_get_end = wasmExports['emscripten_stack_get_end'];

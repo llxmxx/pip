@@ -35,3 +35,8 @@ int vm_mem(int addr){
     if(addr < 0 || addr > STACK_END) return 0;
     return m.memory[addr];
 }
+
+void vm_poke(int addr, int b){
+    if(addr < DATA_START || addr > DATA_END) return;
+    m.memory[addr] = b;
+}
