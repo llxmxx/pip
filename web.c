@@ -16,6 +16,13 @@ void vm_step(void) {
     if(!m.halted) step(&m);
 }
 
+void vm_run(int n){
+    for (int i = 0; i < n; i++){
+        if(m.halted) break;
+        step(&m);
+    }
+}
+
 int vm_reg(int i){
     if(i > 7 || i < 0) return 0;
     return m.registers[i];

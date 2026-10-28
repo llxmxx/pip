@@ -100,14 +100,7 @@ document.getElementById("run").onclick = () => {
     if(rid === null){
         rid = setInterval(() =>{
             let n = Number(document.getElementById("speed").value);
-            for (let i = 0; i < n; i++){
-                Module._vm_step();
-                if(Module._vm_halted()){
-                    clearInterval(rid);
-                    rid = null;
-                    break;
-                }
-            }
+            Module._vm_run(n);
             show();
         }, 50);
     }

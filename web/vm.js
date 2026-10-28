@@ -1588,6 +1588,7 @@ function checkIncomingModuleAPI() {
 var _vm_reset = Module['_vm_reset'] = makeInvalidEarlyAccess('_vm_reset');
 var _vm_load_byte = Module['_vm_load_byte'] = makeInvalidEarlyAccess('_vm_load_byte');
 var _vm_step = Module['_vm_step'] = makeInvalidEarlyAccess('_vm_step');
+var _vm_run = Module['_vm_run'] = makeInvalidEarlyAccess('_vm_run');
 var _vm_reg = Module['_vm_reg'] = makeInvalidEarlyAccess('_vm_reg');
 var _vm_pc = Module['_vm_pc'] = makeInvalidEarlyAccess('_vm_pc');
 var _vm_flags = Module['_vm_flags'] = makeInvalidEarlyAccess('_vm_flags');
@@ -1612,6 +1613,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['vm_reset'] != 'undefined', 'missing Wasm export: vm_reset');
   assert(typeof wasmExports['vm_load_byte'] != 'undefined', 'missing Wasm export: vm_load_byte');
   assert(typeof wasmExports['vm_step'] != 'undefined', 'missing Wasm export: vm_step');
+  assert(typeof wasmExports['vm_run'] != 'undefined', 'missing Wasm export: vm_run');
   assert(typeof wasmExports['vm_reg'] != 'undefined', 'missing Wasm export: vm_reg');
   assert(typeof wasmExports['vm_pc'] != 'undefined', 'missing Wasm export: vm_pc');
   assert(typeof wasmExports['vm_flags'] != 'undefined', 'missing Wasm export: vm_flags');
@@ -1633,6 +1635,7 @@ function assignWasmExports(wasmExports) {
   _vm_reset = Module['_vm_reset'] = createExportWrapper('vm_reset', wasmExports['vm_reset'], 0);
   _vm_load_byte = Module['_vm_load_byte'] = createExportWrapper('vm_load_byte', wasmExports['vm_load_byte'], 2);
   _vm_step = Module['_vm_step'] = createExportWrapper('vm_step', wasmExports['vm_step'], 0);
+  _vm_run = Module['_vm_run'] = createExportWrapper('vm_run', wasmExports['vm_run'], 1);
   _vm_reg = Module['_vm_reg'] = createExportWrapper('vm_reg', wasmExports['vm_reg'], 1);
   _vm_pc = Module['_vm_pc'] = createExportWrapper('vm_pc', wasmExports['vm_pc'], 0);
   _vm_flags = Module['_vm_flags'] = createExportWrapper('vm_flags', wasmExports['vm_flags'], 0);
