@@ -1,10 +1,64 @@
+:root {
+    --substrate: #08090c;
+    --die: #111318;
+    --block: #181b22;
+    --line: #2a2f3a;
+    --copper: #c27a46;
+    --gold: #d8a94b;
+    --ink: #c9d1dc;
+    --dim: #6b7484;
+    --signal: #8be9ff;
+}
+
 body {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    grid-template-areas: "header header" "controls controls" "view side";
+    grid-template-areas: "header" "controls" "die";
+    background: var(--substrate);
+    color: var(--ink);
+    font-family: ui-monospace, Consolas, monospace;
 }
 
 header { grid-area: header;}
 #controls { grid-area: controls;}
-#view { grid-area: view;}
-#side { grid-area: side;}
+
+#die {
+    grid-area: die;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.6fr;
+    grid-template-areas: "rf ctrl mem" "alu stk mem" "io io mem";
+    gap: 16px;
+    padding: 28px;
+    background: var(--die);
+    border: 1px solid var(--copper);
+    position: relative;
+}
+
+#rf{ grid-area: rf;}
+#ctrl {grid-area: ctrl;}
+#alu { grid-area: alu;}
+#stk { grid-area: stk;}
+#mem { grid-area: mem;}
+#io { grid-area: io;}
+
+.label {
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    padding: 0 6px;
+    background: var(--die);
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+}
+
+.block {
+    background: var(--block);
+    border: 1px solid var(--line);
+    padding: 18px 14px 14px;
+    position: relative;
+}
+
+pre{
+    margin: 0;
+    font-size: 12px;
+}

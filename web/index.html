@@ -24,15 +24,32 @@
         <input type="range" id="speed" min="1" max="2000" value="1">
     </div>
 
-    <div id="view">
-        <pre id="out"></pre>
-        <canvas id="grid" width="384" height="384"></canvas>
-    </div>
-
-    <div id="side">
-        <pre id="regs"></pre>
-        <pre id="mem"></pre>
-        <pre id="stack"></pre>
+    <div id="die">
+        <div class="block" id="rf">
+            <span class="label">RF</span>
+            <pre id="regs"></pre>
+        </div>
+        <div class="block" id="ctrl">
+            <span class="label">CTRL</span>
+            <pre id="ctrlinfo"></pre>
+        </div>
+        <div class="block" id="alu">
+            <span class="label">ALU</span>
+            <pre id="aluinfo">idle</pre>
+        </div>
+        <div class="block" id="stk">
+            <span class="label">STACK</span>
+            <pre id="stack"></pre>
+        </div>
+        <div class="block" id="mem">
+            <span class="label">MEM</span>
+            <canvas id="grid" width="384" height="384"></canvas>
+            <pre id="hex"></pre>
+        </div>
+        <div class="block" id="io">
+            <span class="label">I/O</span>
+            <pre id="out"></pre>
+        </div>
     </div>
     
 

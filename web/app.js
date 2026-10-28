@@ -58,7 +58,7 @@ function showMem(){
         }
         text+="\n";
     }
-    document.getElementById("mem").textContent = text;
+    document.getElementById("hex").textContent = text;
 }
 
 function show(){
@@ -66,13 +66,15 @@ function show(){
     for(let i = 0; i < 8; i ++){
         text += "R"+i+": "+Module._vm_reg(i) + "\n";
     }
+    document.getElementById("regs").textContent = text;
+    text = "";
     text += "pc: "+Module._vm_pc() + "\n";
     let flags = Module._vm_flags();
     text += "overflow: " + ((flags & 1) ? "on" : "off") + "\n";
     text += "zero: " + ((flags & 2) ? "on" : "off") + "\n";
     text += "less: " + ((flags & 4) ? "on" : "off") + "\n";
     text += "next: " + decode();
-    document.getElementById("regs").textContent = text;
+    document.getElementById("ctrlinfo").textContent = text;
     showMem();
     showStack();
     drawGrid();
