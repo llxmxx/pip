@@ -1,5 +1,6 @@
 let rid = null;
 let prog = document.getElementById("prog").value
+let frame = 0;
 
 async function load(file){
     Module._vm_reset();
@@ -12,8 +13,6 @@ async function load(file){
 function drawGrid(){
     let canvas = document.getElementById("grid");
     let ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, 384, 384);
     for(let y = 0; y < 64; y++){
         for(let x = 0; x < 64; x++){
             let addr = 0x6000 + (y*64+x)*2;
@@ -100,11 +99,17 @@ document.getElementById("run").onclick = () => {
     if(rid === null){
         rid = setInterval(() =>{
             let n = Number(document.getElementById("speed").value);
+            frame++;
+            Module._vm_poke(0xBFFD, frame & 255);
             Module._vm_run(n);
             show();
-        }, 50);
+            if(Module._vm_halted()){
+                clearInterval(rid);
+                rid = null;
+            }
+        }, 16);
     }
-    show()
+    show();
 }
 
 document.getElementById("pause").onclick = () => {
