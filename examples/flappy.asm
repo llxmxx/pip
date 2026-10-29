@@ -101,6 +101,33 @@ LOADI R4, 0xFEC4
 LOADI R6, bird
 CALL R6
 
+LOADI R5, 1
+AND R5, R1, R5
+LOADI R6, nopipe
+JNZ R6, R5
+LOADI R4, 0x4E19
+LOADI R6, drawpipe
+CALL R6
+LOADI R2, 0xA004
+LOAD R3, [R2]
+LOADI R6, wrap
+JZ R6, R3
+LOADI R5, 1
+SUB R3, R3, R5
+LOADI R6, moved
+JMP R6
+
+wrap:
+LOADI R3, 60
+
+moved:
+STORE [R2], R3
+LOADI R4, 0x75E5
+LOADI R6, drawpipe
+CALL R6
+
+nopipe:
+
 LOADI R6, loop
 JMP R6
 
