@@ -11,18 +11,19 @@
 
     <div id="controls">
         <select id="prog">
-            <option value="flappy.bin">flappy</option>
-            <option value="fib.bin">fibonacci</option>
-            <option value="add.bin">2+3</option>
-            <option value="ant.bin">langtons ant</option>
-            <option value="call.bin">call</option>
-            <option value="key.bin">key</option>
+            <option value="flappy.bin" data-speed="100">flappy</option>
+            <option value="fib.bin" data-speed="10">fibonacci</option>
+            <option value="add.bin" data-speed="5">2+3</option>
+            <option value="ant.bin" data-speed="60">langtons ant</option>
+            <option value="call.bin" data-speed="5">call</option>
+            <option value="key.bin" data-speed="20">key</option>
         </select>
         <button id="step">step</button>
         <button id="run">run</button>
         <button id="pause">pause</button>
         <button id="reset">reset</button>
-        <input type="range" id="speed" min="1" max="20000" value="1">
+        <input type="range" id="speed" min="1" max="100" value="40">
+        <span id="speedlabel"></span>
     </div>
 
     <div id="die">

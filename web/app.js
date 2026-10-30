@@ -2,11 +2,29 @@ let rid = null;
 let prog = document.getElementById("prog").value
 let frame = 0;
 
+const speedEl = document.getElementById("speed");
+const speedLabel = document.getElementById("speedlabel");
+let budget = 0, last = performance.now();
+
+function ips(){
+    return Math.pow(1.2e6, Number(speedEl.value)/100);
+}
+function fmt(x){
+    if(x >= 1e6) return (x/1e6).toFixed(1)+"M";
+    if(x >= 1e3) return (x/1e3).toFixed(1)+"k";
+    return x>=10 ? String(Math.round(x)) : x.toFixed(1);
+}
+speedEl.oninput = () =>{speedLabel.textContent = fmt(ips()) + " instr/s";}
+speedEl.oninput();
+
 async function load(file){
     Module._vm_reset();
     let bytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
     bytes.forEach((b, i) => Module._vm_load_byte(i, b));
     let box = document.getElementById("out");
+    const opt = document.querySelector('#prog option[value="' + file + '"]');
+    speedEl.value = opt && opt.dataset.speed ? opt.dataset.speed : 40;
+    speedEl.oninput();
     box.textContent = "";
 }
 
@@ -97,11 +115,17 @@ document.getElementById("step").onclick = () => {
 
 document.getElementById("run").onclick = () => {
     if(rid === null){
+        budget = 0;
+        last = performance.now();
         rid = setInterval(() =>{
-            let n = Number(document.getElementById("speed").value);
+            const now = performance.now();
+            budget += ips()*Math.min(now-last, 100)/1000;
+            last = now;
+            const n = Math.floor(budget);
+            budget -= n;
             frame++;
             Module._vm_poke(0xBFFD, frame & 255);
-            Module._vm_run(n);
+            if(n > 0) Module._vm_run(n);
             show();
             if(Module._vm_halted()){
                 clearInterval(rid);
