@@ -1,6 +1,7 @@
 let rid = null;
 let prog = document.getElementById("prog").value
 let frame = 0;
+let progLen = 1;
 
 const speedEl = document.getElementById("speed");
 const speedLabel = document.getElementById("speedlabel");
@@ -23,6 +24,7 @@ async function load(file){
     Module._vm_reset();
     let bytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
     bytes.forEach((b, i) => Module._vm_load_byte(i, b));
+    progLen = bytes.length;
     let box = document.getElementById("out");
     const opt = document.querySelector('#prog option[value="' + file + '"]');
     speedEl.value = opt && opt.dataset.speed ? opt.dataset.speed : 40;
@@ -44,6 +46,19 @@ function drawGrid(){
             ctx.fillRect(x*6, y*6, 5.5, 5.5);
         }
     }
+}
+
+function showBar(){
+    let pc = Module._vm_pc();
+    let sp = Module._vm_reg(7);
+    if(sp === 0) sp = 65535;
+    let w = Math.max(progLen / 65536 * 100, 0.6);
+    document.getElementById("used").style.width = w+"%";
+    document.getElementById("conn").style.clipPath = "polygon(0 0," + w + "% 0, 100% 100%, 0 100%)";
+    document.getElementById("pcmark").style.left = (pc/65536 *100) + "%";
+    document.getElementById("spmark").style.left = (sp/65536 * 100) + "%";
+    document.getElementById("pcz").style.left = Math.min(100, pc/progLen * 100) + "%";
+    document.getElementById("codezoom").dataset.len = progLen + " BYTES";
 }
 
 function showAlu(){
@@ -137,6 +152,7 @@ function show(){
     showMem();
     showStack();
     showAlu();
+    showBar();
     drawGrid();
 }
 

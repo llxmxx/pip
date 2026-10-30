@@ -62,3 +62,82 @@ pre{
     margin: 0;
     font-size: 12px;
 }
+
+#membar{
+    position: relative;
+    display: flex;
+    height: 22px;
+    margin: 20px 0 0;
+    border: 1px solid var(--line);
+}
+
+#membar .seg{
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+    padding: 5px 6px;
+    box-sizing: border-box;
+    border-right: 1px solid var(--line);
+    overflow: hidden;
+}
+#membar .seg:nth-child(3){border-right: none;}
+
+#used{
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: var(--copper);
+    opacity: 0.8;
+}
+
+#conn {
+    height: 14px;
+    background: var(--copper);
+    opacity: 0.22;
+}
+
+#codezoom {
+    position: relative;
+    height: 16px;
+    margin: 0 0 18px;
+    border: 1px solid var(--copper);
+    background: var(--die);
+}
+
+#codezoom::before{
+    content: "PROGRAM · " attr(data-len);
+    position: absolute;
+    left: 6px;
+    font-size: 9px;
+    line-height: 16px;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+}
+
+.mark{
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 2px;
+    transform: translateX(-1px);
+}
+
+.mark::after{
+    position: absolute;
+    left: -6px;
+    top: -13px;
+    font-size: 9px;
+}
+
+#pcmark, #pcz {background: var(--signal);}
+#pcmark::after {
+    content: "PC";
+    color: var(--signal);
+}
+#spmark{background: var(--gold);}
+#spmark::after{
+    content: "SP";
+    color: var(--gold);
+}
+#pcz::after{content: none;}
