@@ -6,6 +6,8 @@ const speedEl = document.getElementById("speed");
 const speedLabel = document.getElementById("speedlabel");
 let budget = 0, last = performance.now();
 
+const ALU_OPS = {1: "ADD", 2: "SUB", 3: "MUL", 4: "DIV", 6: "CMP", 21: "AND", 22: "OR", 23: "XOR", 24: "NOT", 25: "SHL", 26: "SHR"};
+
 function ips(){
     return Math.pow(1.2e6, Number(speedEl.value)/100);
 }
@@ -42,6 +44,46 @@ function drawGrid(){
             ctx.fillRect(x*6, y*6, 5.5, 5.5);
         }
     }
+}
+
+function showAlu(){
+    let box = document.getElementById("aluinfo");
+    let pc = Module._vm_pc();
+    let w = (Module._vm_mem(pc) << 8) | Module._vm_mem(pc + 1);
+    let op = (w >> 11) & 31, d = (w >> 8) & 7, s1 = (w >> 5) & 7, s2 = (w >> 2) & 7;
+    let name = ALU_OPS[op];
+    if(!name){
+        box.textContent = "idle";
+        box.style.color = "var(--dim)";
+        return;
+    }
+    box.style.color = "var(--signal)";
+    let a = Module._vm_reg(s1), b = Module._vm_reg(s2);
+    let line2, line3;
+    if(name === "NOT"){
+        line2 = "R" + d + "<- ~R" + s1;
+        line3 = "~" + a + " = " + ((~a) & 0xFFFF);
+    }
+    else if(name === "CMP"){
+        line2 = "R" + s1 + " vs R" + s2;
+        line3 = a + " vs " + b + " -> " + (a < b ? "less" : a===b ? "equal" : "greater");
+    }
+    else{
+        const sym = {ADD: "+", SUB: "-", MUL: "*", DIV: "/", AND: "&", OR: "|", XOR: "^", SHL: "<<", SHR: ">>"}[name];
+        let r;
+        if(name === "ADD") r = (a+b) & 0xFFFF;
+        else if(name === "SUB") r = (a-b) & 0xFFFF;
+        else if(name === "MUL") r = (a*b) & 0xFFFF;
+        else if(name === "DIV") r = b===0 ? "div by 0" : Math.floor(a/b);
+        else if(name === "AND") r = (a&b);
+        else if(name === "OR") r = (a|b);
+        else if(name === "XOR") r = (a^b);
+        else if(name === "SHL") r = (a<<b) & 0xFFFF;
+        else r = a >> b;
+        line2 = "R" + d + " <- R" + s1 + " " + sym + " R" + s2;
+        line3 = a + " " + sym + " " + b + " = " + r;
+    }
+    box.textContent = name + "\n" + line2 + "\n" + line3;
 }
 
 function showStack(){
@@ -94,6 +136,7 @@ function show(){
     document.getElementById("ctrlinfo").textContent = text;
     showMem();
     showStack();
+    showAlu();
     drawGrid();
 }
 
