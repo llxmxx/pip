@@ -11,6 +11,8 @@ let budget = 0, last = performance.now();
 
 const ALU_OPS = {1: "ADD", 2: "SUB", 3: "MUL", 4: "DIV", 6: "CMP", 21: "AND", 22: "OR", 23: "XOR", 24: "NOT", 25: "SHL", 26: "SHR"};
 
+const WIRES = {"rf-ctrl": ["rf", "ctrl"], "rf-alu": ["rf", "alu"], "ctrl-mem": ["ctrl", "mem"], "ctrl-stk": ["ctrl", "stk"], "stk-mem": ["stk", "mem"], "alu-stk": ["alu", "stk"], "alu-io": ["alu", "io"]};
+
 function ips(){
     return Math.pow(1.2e6, Number(speedEl.value)/100);
 }
@@ -177,6 +179,30 @@ function showSrc(){
     curLine = ln;
 }
 
+function placeWires(){
+    const die = document.getElementById("die").getBoundingClientRect();
+    for(const name in WIRES){
+        const a = document.getElementById(WIRES[name][0]).getBoundingClientRect();
+        const b = document.getElementById(WIRES[name][1]).getBoundingClientRect();
+        const l = document.getElementById("w-" + name);
+        l.setAttribute("x1", a.left + a.width/2 - die.left);
+        l.setAttribute("y1", a.top + a.height/2 - die.top);
+        l.setAttribute("x2", b.left + b.width/2 - die.left);
+        l.setAttribute("y2", b.top + b.height/2 - die.top);
+    }
+}
+
+function buildWires(){
+    const svg = document.getElementById("wires");
+    for(const name in WIRES){
+        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        l.setAttribute("class", "wire");
+        l.id = "w-" + name;
+        svg.appendChild(l);
+    }
+    placeWires();
+}
+
 function show(){
     let text = "";
     for(let i = 0; i < 8; i ++){
@@ -197,6 +223,7 @@ function show(){
     showBar();
     showSrc();
     drawGrid();
+    buildWires();
 }
 
 var Module = {
@@ -274,3 +301,5 @@ document.addEventListener("keydown", e => {
 document.getElementById("grid").addEventListener("pointerdown", () => {
     Module._vm_poke(0xBFFF, 1);
 })
+
+new ResizeObserver(placeWires).observe(document.getElementById("die"));
