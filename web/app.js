@@ -12,6 +12,14 @@ let budget = 0, last = performance.now();
 const ALU_OPS = {1: "ADD", 2: "SUB", 3: "MUL", 4: "DIV", 6: "CMP", 21: "AND", 22: "OR", 23: "XOR", 24: "NOT", 25: "SHL", 26: "SHR"};
 
 const WIRES = {"rf-ctrl": ["rf", "ctrl"], "rf-alu": ["rf", "alu"], "ctrl-mem": ["ctrl", "mem"], "ctrl-stk": ["ctrl", "stk"], "stk-mem": ["stk", "mem"], "alu-stk": ["alu", "stk"], "alu-io": ["alu", "io"]};
+const PATHS = {};
+[1, 2, 3, 4, 6, 21, 22, 23, 24, 25, 26].forEach(o => PATHS[o] = ["rf-alu"]);
+PATHS[5] = ["rf-ctrl"];
+PATHS[18] = ["rf-ctrl"];
+PATHS[16] = PATHS[17] = ["rf-ctrl", "ctrl-mem"];
+for(let o = 7; o <= 15; o++) PATHS[o] = ["ctrl-stk", "stk-mem"];
+PATHS[19] = PATHS[20] = ["ctrl-stk", "stk-mem"];
+PATHS[27] = ["alu-io"];
 
 function ips(){
     return Math.pow(1.2e6, Number(speedEl.value)/100);
@@ -203,6 +211,17 @@ function buildWires(){
     placeWires();
 }
 
+function showWires(){
+    buildWires();
+    const pc = Module._vm_pc();
+    const op = ((Module._vm_mem(pc) << 8) | Module._vm_mem(pc+1)) >> 11;
+    document.querySelectorAll(".wire.hot").forEach(w => w.classList.remove("hot"));
+    (PATHS[op] || []).forEach(n => {
+        const el = document.getElementById("w-" + n);
+        if(el) el.classList.add("hot");
+    });
+}
+
 function show(){
     let text = "";
     for(let i = 0; i < 8; i ++){
@@ -223,7 +242,7 @@ function show(){
     showBar();
     showSrc();
     drawGrid();
-    buildWires();
+    showWires();
 }
 
 var Module = {
