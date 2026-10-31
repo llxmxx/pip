@@ -2,6 +2,8 @@ let rid = null;
 let prog = document.getElementById("prog").value
 let frame = 0;
 let progLen = 1;
+let lineOf = {};
+let curLine = -1;
 
 const speedEl = document.getElementById("speed");
 const speedLabel = document.getElementById("speedlabel");
@@ -25,6 +27,23 @@ async function load(file){
     let bytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
     bytes.forEach((b, i) => Module._vm_load_byte(i, b));
     progLen = bytes.length;
+    try {
+        const srcRes = await ( await fetch(file.replace(/\.bin$/, ".asm")));
+        const mapRes = await( await fetch(file + ".map"));
+        if(!srcRes.ok || !mapRes.ok) throw new Error("missing source or map");
+        const srcText = await srcRes.text();
+        const mapText = await mapRes.text();
+        lineOf = {};
+        mapText.split("\n").forEach(l => {
+            const p = l.trim().split(" ");
+            if(p.length === 2) lineOf[p[0]] = Number(p[1]);
+        });
+        buildSrc(srcText);
+    }
+    catch(e){
+        lineOf = {};
+        document.getElementById("srcbox").textContent = "no source for this program";
+    }
     let box = document.getElementById("out");
     const opt = document.querySelector('#prog option[value="' + file + '"]');
     speedEl.value = opt && opt.dataset.speed ? opt.dataset.speed : 40;
@@ -135,6 +154,29 @@ function showMem(){
     document.getElementById("hex").textContent = text;
 }
 
+function buildSrc(text){
+    const box = document.getElementById("srcbox");
+    box.textContent = "";
+    text.split("\n").forEach((t, i) => {
+        const d= document.createElement("div");
+        d.className = "ln";
+        d.textContent = String(i+1).padStart(3, " ") + " " + t.replace("\r", "");
+        box.appendChild(d);
+    });
+    curLine = -1;
+}
+
+function showSrc(){
+    const ln = lineOf[Module._vm_pc()];
+    if(!ln || ln === curLine) return;
+    const box = document.getElementById("srcbox");
+    if (curLine > 0) box.children[curLine - 1].classList.remove("cur");
+    const el = box.children[ln-1];
+    el.classList.add("cur");
+    box.scrollTop = el.offsetTop - box.clientHeight/2;
+    curLine = ln;
+}
+
 function show(){
     let text = "";
     for(let i = 0; i < 8; i ++){
@@ -153,6 +195,7 @@ function show(){
     showStack();
     showAlu();
     showBar();
+    showSrc();
     drawGrid();
 }
 

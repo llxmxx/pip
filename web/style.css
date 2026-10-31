@@ -25,7 +25,7 @@ header { grid-area: header;}
     grid-area: die;
     display: grid;
     grid-template-columns: 1fr 1fr 1.6fr;
-    grid-template-areas: "rf ctrl mem" "alu stk mem" "io io mem";
+    grid-template-areas: "rf ctrl mem" "alu stk mem" "io io mem" "src src src";
     gap: 16px;
     padding: 28px;
     background: var(--die);
@@ -141,3 +141,23 @@ pre{
     color: var(--gold);
 }
 #pcz::after{content: none;}
+
+#src{ grid-area: src}
+
+#srcbox{
+    position: relative;
+    height: 260px;
+    overflow-y: auto;
+    font-size: 12px;
+    white-space: pre;
+}
+
+#srcbox .ln {
+    padding: 0 6px;
+    color: var(--dim);
+}
+
+#srcbox .ln.cur{
+    background: var(--line);
+    color: var(--signal);
+}
