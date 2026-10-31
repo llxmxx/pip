@@ -82,6 +82,10 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
+    char mapname[300];
+    snprintf(mapname, sizeof mapname, "%s.map", argv[2]);
+    FILE *map = fopen(mapname, "w");
+
     char line[256]; int lineno = 0, addr = 0;
     for(int pass = 1; pass <= 2; pass++){
         rewind(in);
@@ -225,6 +229,8 @@ int main(int argc, char *argv[]){
                 return 1;
             }
 
+            if(map != NULL) fprintf(map, "%d %d\n", addr, lineno);
+
             uint16_t word = (table[found].opcode << 11) | (d << 8) | (s1 << 5) | (s2 << 2);
             fputc(word >> 8, out);
             fputc(word & 0xFF, out);
@@ -232,10 +238,11 @@ int main(int argc, char *argv[]){
                 fputc(num >> 8, out);
                 fputc(num & 0xFF, out);
             }
+            addr += (table[found].shape == DI) ? 4 : 2;
         }    
     }
     
-
+    if (map != NULL) fclose(map);
     fclose(in);
     fclose(out);
     return 0;
