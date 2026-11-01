@@ -10,7 +10,7 @@ const srcEdit = document.getElementById("srcedit");
 const srcRun = document.getElementById("srcrun");
 const srcBack = document.getElementById("srcback");
 srcEdit.addEventListener("input", () => {
-    edited: true;
+    edited = true;
 });
 
 const EXAMPLE = "LOADI R1, 0\nLOADI R2, 1\nLOADI R3, 6\nLOADI R6, loop\nloop:\nPRINT R1\nADD R1, R1, R2\nCMP R1, R3\nJLT R6\nHALT\n";
@@ -23,13 +23,15 @@ const ALU_OPS = {1: "ADD", 2: "SUB", 3: "MUL", 4: "DIV", 6: "CMP", 21: "AND", 22
 
 const WIRES = {"rf-ctrl": ["rf", "ctrl"], "rf-alu": ["rf", "alu"], "ctrl-mem": ["ctrl", "mem"], "ctrl-stk": ["ctrl", "stk"], "stk-mem": ["stk", "mem"], "alu-stk": ["alu", "stk"], "alu-io": ["alu", "io"]};
 const PATHS = {};
-[1, 2, 3, 4, 6, 21, 22, 23, 24, 25, 26].forEach(o => PATHS[o] = ["rf-alu"]);
-PATHS[5] = ["rf-ctrl"];
-PATHS[18] = ["rf-ctrl"];
-PATHS[16] = PATHS[17] = ["rf-ctrl", "ctrl-mem"];
-for(let o = 7; o <= 15; o++) PATHS[o] = ["ctrl-stk", "stk-mem"];
-PATHS[19] = PATHS[20] = ["ctrl-stk", "stk-mem"];
-PATHS[27] = ["alu-io"];
+[1, 2, 3, 4, 6, 21, 22, 23, 24, 25, 26].forEach(o => PATHS[o] = [["rf-alu", 1]]);
+PATHS[5] = [["rf-ctrl", -1]];
+PATHS[18] = [["rf-ctrl", -1]];
+PATHS[16] = [["ctrl-mem", -1], ["rf-ctrl", -1]];
+PATHS[17] = [["rf-ctrl", 1], ["ctrl-mem", 1]];
+for(let o = 7; o <= 15; o++) PATHS[o] = [["ctrl-mem", 1]];
+PATHS[19] = [["ctrl-stk", 1], ["stk-mem", 1]];
+PATHS[20] = [["stk-mem", -1], ["ctrl-stk", -1]];
+PATHS[27] = [["alu-io", 1]];
 
 function ips(){
     return Math.pow(1.2e6, Number(speedEl.value)/100);
@@ -240,10 +242,14 @@ function placeWires(){
         const a = document.getElementById(WIRES[name][0]).getBoundingClientRect();
         const b = document.getElementById(WIRES[name][1]).getBoundingClientRect();
         const l = document.getElementById("w-" + name);
-        l.setAttribute("x1", a.left + a.width/2 - die.left);
-        l.setAttribute("y1", a.top + a.height/2 - die.top);
-        l.setAttribute("x2", b.left + b.width/2 - die.left);
-        l.setAttribute("y2", b.top + b.height/2 - die.top);
+        for(const pre of ["w-", "p-"]){
+            const l = document.getElementById(pre + name);
+            if(!l) continue;
+            l.setAttribute("x1", a.left + a.width / 2 - die.left);
+            l.setAttribute("y1", a.top + a.height / 2 - die.top);
+            l.setAttribute("x2", b.left + b.width / 2 - die.left);
+            l.setAttribute("y2", b.top + b.height / 2 - die.top);
+        }
     }
 }
 
@@ -254,18 +260,29 @@ function buildWires(){
         l.setAttribute("class", "wire");
         l.id = "w-" + name;
         svg.appendChild(l);
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        p.setAttribute("class", "pulse");
+        p.setAttribute("pathLength", "100");
+        p.id = "p-" + name;
+        p.addEventListener("animationend", () => p.classList.remove("go", "rev"));
+        svg.appendChild(p);
     }
     placeWires();
 }
 
 function showWires(){
-    buildWires();
     const pc = Module._vm_pc();
-    const op = ((Module._vm_mem(pc) << 8) | Module._vm_mem(pc+1)) >> 11;
+    const op = ((Module._vm_mem(pc) << 8) | Module._vm_mem(pc + 1)) >> 11;
     document.querySelectorAll(".wire.hot").forEach(w => w.classList.remove("hot"));
-    (PATHS[op] || []).forEach(n => {
-        const el = document.getElementById("w-" + n);
-        if(el) el.classList.add("hot");
+    (PATHS[op] || []).forEach(([name, dir], i) => {
+        const w = document.getElementById("w-" + name);
+        const p = document.getElementById("p-" + name);
+        if(w) w.classList.add("hot");
+        if(p && !p.classList.contains("go")){
+            p.style.animationDelay = (i * 0.2) + "s";
+            p.classList.add("go");
+            if(dir < 0) p.classList.add("rev");
+        }
     });
 }
 
@@ -299,6 +316,7 @@ var Module = {
     },
     async onRuntimeInitialized(){
         await load(prog);
+        buildWires();
         show();
         document.getElementById("run").click();
     }
@@ -375,7 +393,7 @@ document.getElementById("prog").onchange = async () => {
 }
 
 document.addEventListener("keydown", e => {
-    if(e.code === "Space"){
+    if(e.code === "Space" && e.target.tagName !== "TEXTAREA"){
         e.preventDefault();
         Module._vm_poke(0xBFFF, 1);
     }
