@@ -162,6 +162,25 @@ pre{
     color: var(--signal);
 }
 
+#srcedit{
+    width: 100%;
+    height: 260px;
+    box-sizing: border-box;
+    background: var(--die);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    font: 12px ui-monospace, Consolas, monospace;
+    padding: 8px;
+    resize: vertical;
+}
+
+#srcbtns{
+    margin-top: 10px;
+}
+[hidden]{
+    display: none !important;
+}
+
 #wires{
     position: absolute;
     inset: 0;

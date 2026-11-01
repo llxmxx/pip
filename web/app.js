@@ -4,6 +4,16 @@ let frame = 0;
 let progLen = 1;
 let lineOf = {};
 let curLine = -1;
+let lastSrc = "", edited = false, customMode = false;
+const srcBox = document.getElementById("srcbox");
+const srcEdit = document.getElementById("srcedit");
+const srcRun = document.getElementById("srcrun");
+const srcBack = document.getElementById("srcback");
+srcEdit.addEventListener("input", () => {
+    edited: true;
+});
+
+const EXAMPLE = "LOADI R1, 0\nLOADI R2, 1\nLOADI R3, 6\nLOADI R6, loop\nloop:\nPRINT R1\nADD R1, R1, R2\nCMP R1, R3\nJLT R6\nHALT\n";
 
 const speedEl = document.getElementById("speed");
 const speedLabel = document.getElementById("speedlabel");
@@ -164,7 +174,44 @@ function showMem(){
     document.getElementById("hex").textContent = text;
 }
 
+function setEditing(editing){
+    srcBox.hidden = editing;
+    srcEdit.hidden = !editing;
+    srcRun.hidden = !(customMode && editing);
+    srcBack.hidden = !(customMode && !editing);
+}
+
+function runCustom(){
+    if(rid !== null){
+        clearInterval(rid);
+        rid = null;
+    }
+    const text = srcEdit.value + "\n";
+    Module._vm_reset();
+    document.getElementById("out").textContent = "";
+    const n = Module.ccall("web_assemble", "number", ["string"], [text]);
+    if(n < 0){
+        show();
+        return;
+    }
+    for(let i = 0; i < n; i++) Module._vm_load_byte(i, Module._web_byte(i));
+    progLen = n;
+    lineOf = {};
+    Module.ccall("web_map", "string", [], []).split("\n").forEach(l => {
+        const p = l.trim().split(" ");
+        if(p.length === 2) lineOf[p[0]] = Number(p[1]);
+    });
+    buildSrc(text);
+    speedEl.value = 30;
+    speedEl.oninput();
+    show();
+    setEditing(false);
+}
+srcRun.onclick = runCustom;
+srcBack.onclick = () => setEditing(true);
+
 function buildSrc(text){
+    lastSrc = text;
     const box = document.getElementById("srcbox");
     box.textContent = "";
     text.split("\n").forEach((t, i) => {
@@ -293,6 +340,10 @@ document.getElementById("pause").onclick = () => {
 }
 
 document.getElementById("reset").onclick =  async () => {
+    if(prog === "custom"){
+        runCustom();
+        return;
+    }
     if(rid !== null){
         clearInterval(rid);
         rid = null;
@@ -306,7 +357,19 @@ document.getElementById("prog").onchange = async () => {
         clearInterval(rid);
         rid = null;
     }
-    prog = document.getElementById("prog").value
+    prog = document.getElementById("prog").value;
+    if(prog === "custom"){
+        customMode = true;
+        if(!edited) srcEdit.value = (lastSrc && lastSrc.split("\n").length < 60) ? lastSrc : EXAMPLE;
+        Module._vm_reset();
+        lineOf = {};
+        document.getElementById("out").textContent = document.querySelector('#prog option[value="custom"]').dataset.hint + "\n";
+        show();
+        setEditing(true);
+        return;
+    }
+    customMode = false;
+    setEditing(false);
     await load(prog);
     show();
 }

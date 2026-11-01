@@ -12,13 +12,14 @@
 
     <div id="controls">
         <select id="prog">
-            <option value="pip.bin" data-speed="60">pip!</option>
+            <option value="pip.bin" data-speed="100">pip!</option>
             <option value="flappy.bin" data-speed="100" data-hint="press run, then space or click the screen to flap">flappy</option>
             <option value="fib.bin" data-speed="10">fibonacci</option>
             <option value="add.bin" data-speed="5">2+3</option>
             <option value="ant.bin" data-speed="60">langtons ant</option>
             <option value="call.bin" data-speed="5">call</option>
             <option value="key.bin" data-speed="20">key</option>
+            <option value="custom" data-speed="10" data-hint="type ur own code in the src">customs wowzers</option>
         </select>
         <button id="step">step</button>
         <button id="run">run</button>
@@ -69,6 +70,11 @@
         <div class="block" id="src">
             <span class="label">SOURCE</span>
             <div id="srcbox"></div>
+            <textarea id="srcedit" spellcheck="false" hidden></textarea>
+            <div id="srcbtns">
+                <button id="srcrun" hidden>assemble</button>
+                <button id="srcback" hidden>edit</button>
+            </div>
         </div>
     </div>
     
