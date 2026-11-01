@@ -82,7 +82,7 @@ function drawGrid(){
             let g = Math.round(((v >> 5) & 63) * 255/63);
             let b = Math.round((v & 31) * 255/31);
             ctx.fillStyle = "rgb(" + r + "," + g +"," + b +")";
-            ctx.fillRect(x*6, y*6, 5.5, 5.5);
+            ctx.fillRect(x*6, y*6, 6, 6);
         }
     }
 }
