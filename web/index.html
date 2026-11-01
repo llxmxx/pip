@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="icon" href="pipfav.ico">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>pip</header>
+    <header>
+        <img src="pipicon.png" alt="pipped" id="logo">
+        pip
+        <small>a 16-bit virtual machine. built from scratch.</small>
+    </header>
 
     <div id="controls">
         <select id="prog">
-            <option value="pip.bin" data-speed="100">pip!</option>
-            <option value="flappy.bin" data-speed="100" data-hint="press run, then space or click the screen to flap">flappy</option>
-            <option value="fib.bin" data-speed="10">fibonacci</option>
-            <option value="add.bin" data-speed="5">2+3</option>
-            <option value="ant.bin" data-speed="60">langtons ant</option>
-            <option value="call.bin" data-speed="5">call</option>
-            <option value="key.bin" data-speed="20">key</option>
+            <option value="progs/pip.bin" data-speed="100">pip!</option>
+            <option value="progs/flappy.bin" data-speed="100" data-hint="press run, then space or click the screen to flap">flappy</option>
+            <option value="progs/fib.bin" data-speed="10">fibonacci</option>
+            <option value="progs/add.bin" data-speed="5">2+3</option>
+            <option value="progs/ant.bin" data-speed="60">langtons ant</option>
+            <option value="progs/call.bin" data-speed="5">call</option>
+            <option value="progs/key.bin" data-speed="20">key</option>
             <option value="custom" data-speed="10" data-hint="type ur own code in the src">customs wowzers</option>
         </select>
         <button id="step">step</button>
@@ -50,8 +55,6 @@
         </div>
         <div class="block" id="mem">
             <span class="label">MEM</span>
-            <canvas id="grid" width="384" height="384"></canvas>
-            <pre id="hex"></pre>
             <div id="membar">
                 <div class="seg" style="width:37.5%">CODE</div>
                 <div class="seg" style="width:37.5%">DATA</div>
@@ -62,6 +65,8 @@
             </div>
             <div id="conn"></div>
             <div id="codezoom"><div class="mark" id="pcz"></div></div>
+            <div id="screen"><canvas id="grid" width="384" height="384"></canvas></div>            <pre id="hex"></pre>
+            
         </div> 
         <div class="block" id="io">
             <span class="label">I/O</span>

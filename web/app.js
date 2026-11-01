@@ -108,10 +108,10 @@ function showAlu(){
     let name = ALU_OPS[op];
     if(!name){
         box.textContent = "idle";
-        box.style.color = "var(--dim)";
+        box.style.color = "var(--faint)";
         return;
     }
-    box.style.color = "var(--signal)";
+    box.style.color = "var(--accent)";
     let a = Module._vm_reg(s1), b = Module._vm_reg(s2);
     let line2, line3;
     if(name === "NOT"){

@@ -1,4 +1,3 @@
-; pip.asm - Pip, traced from the hand-drawn sketch (line art)
 LOADI R2, 0x6000
 LOADI R3, 65503
 LOADI R4, 2
