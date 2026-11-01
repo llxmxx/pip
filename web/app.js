@@ -253,6 +253,7 @@ var Module = {
     async onRuntimeInitialized(){
         await load(prog);
         show();
+        document.getElementById("run").click();
     }
 }
 
