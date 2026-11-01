@@ -58,7 +58,7 @@ async function load(file){
     const opt = document.querySelector('#prog option[value="' + file + '"]');
     speedEl.value = opt && opt.dataset.speed ? opt.dataset.speed : 40;
     speedEl.oninput();
-    box.textContent = "";
+    box.textContent = opt && opt.dataset.hint ? opt.dataset.hint + "\n" : "";
 }
 
 function drawGrid(){
